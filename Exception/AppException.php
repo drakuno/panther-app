@@ -8,7 +8,7 @@ class AppException extends Exception
 {
 	protected	$data;
 	protected	$slug;
-	public function __construct($slug,$message="",$data=array())
+	public function __construct($slug,$message="",$data=null)
 	{
 		$this->data	= $data;
 		$this->slug	= $slug;

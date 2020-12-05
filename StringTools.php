@@ -4,6 +4,11 @@ namespace PantherApp;
 
 class StringTools
 {
+	static public function concat(string ...$strings)
+	{
+		return implode("",$strings);
+	}
+
 	static public function slugToCamelCase(string $str,bool $includingFirstWord=false)
 	{
 		$words			= explode("-",$str);
