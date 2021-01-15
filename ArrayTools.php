@@ -38,8 +38,8 @@ class ArrayTools
 	static public function fromArrayOfTuples(array $key_value_tuples):array
 	{
 		return array_combine(
-			array_map(self::keyAccessCallable(0),$key_value_tuples),
-			array_map(self::keyAccessCallable(1),$key_value_tuples)
+			array_column($key_value_tuples,0),
+			array_column($key_value_tuples,1)
 		);
 	}
 
