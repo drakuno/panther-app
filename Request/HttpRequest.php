@@ -14,13 +14,14 @@ class HttpRequest extends Request
 		return !empty($_SERVER)&&array_key_exists("REQUEST_METHOD",$_SERVER);
 	}
 
-	// Trims the specified base-path from the complete requested path
-	static public function requestURIPathBaseTrim(string $base_path="")
+	static public function URIAsAppQueryMap(string $uri,string $base_path="")
 	{
-		if (!self::environmentVerification())
-			throw new AppException("wrong-environment","PHP is not currently serving an HTTP request.");
+		$query	= self::URIPathBaseTrim($uri,$base_path);
 
-		return self::URIPathBaseTrim($_SERVER['REQUEST_URI'],$base_path);
+		if ($uriquery_pos=strpos($query,"?"))
+			$query	= substr($query,0,$uriquery_pos);
+
+		return $query;
 	}
 
 	static public function URIPathBaseTrim(string $uri,string $base_path="")
@@ -39,7 +40,10 @@ class HttpRequest extends Request
 
 	public function __construct(array $vars=array(),string $base_path="")
 	{
-		$httpRequestPath	= self::requestURIPathBaseTrim($base_path);
+		if (!self::environmentVerification())
+			throw new AppException("wrong-environment","PHP is not currently serving an HTTP request.");
+
+		$httpRequestPath	= self::URIAsAppQueryMap($_SERVER['REQUEST_URI'],$base_path);
 		$vars				= array_merge(['http'=>['GET'=>$_GET,'POST'=>$_POST]],$vars);
 		parent::__construct($httpRequestPath,$vars);
 	}
