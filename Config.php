@@ -26,6 +26,8 @@ class Config implements ArrayAccess
 
 	public function __get($entry_name){ return $this->entryRead($entry_name); }
 
+	public function all(){ return $this->entries; }
+
 	public function entryRead($entry_name)
 	{
 		if (array_key_exists($entry_name,$this->entries))
