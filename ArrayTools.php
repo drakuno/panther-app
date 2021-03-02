@@ -2,20 +2,20 @@
 
 namespace PantherApp;
 
+use \ArrayIterator;
+
 class ArrayTools
 {
-	static public function every(array $arr,callable $filter)
+	static public function every(array $arr,callable $filter):bool
 	{
-		return count($arr)==count(array_filter($arr,$filter));
-	}
+		$iterator	= new ArrayIterator($arr);
 
-	static public function find(array $arr,callable $filter)
-	{
-		$filtered	= array_filter($arr,$filter);
-		if (count($filtered))
-			return current($filtered);
-		else
-			return null;
+		while ($iterator->valid())
+			if ($filter($iterator->current()))
+				$iterator->next();
+			else
+				return false;
+		return true;
 	}
 
 	static public function filterAnd(callable ...$filters):callable
@@ -35,6 +35,20 @@ class ArrayTools
 		}
 	}
 
+	static public function filterNot(callable $filter):callable
+	{
+		return function(...$args) use ($filter)
+		{
+			return !call_user_func_array($filter,$args);
+		};
+	}
+
+	static public function find(array $arr,callable $filter,$default=null)
+	{
+		$key	= self::search($arr,$filter);
+		return $key!==false?$arr[$key]:$default;
+	}
+
 	static public function fromArrayOfTuples(array $key_value_tuples):array
 	{
 		return array_combine(
@@ -51,7 +65,7 @@ class ArrayTools
 	static public function keyAndValueMap(array $arr,callable $map):array
 	{
 		$keys				= array_keys($arr);
-		$key_value_tuples	= array_map($map,$arr,$keys);
+		$key_value_tuples	= array_map($map,$keys,$arr);
 		return self::fromArrayOfTuples($key_value_tuples);
 	}
 
@@ -83,5 +97,22 @@ class ArrayTools
 	static public function pick(array $arr,array $keys)
 	{
 		return self::keysSlice($arr,$keys);
+	}
+
+	static public function search(array $arr,callable $filter)
+	{
+		$iterator	= new ArrayIterator($arr);
+
+		while ($iterator->valid())
+			if ($filter($iterator->current()))
+				return $iterator->key();
+			else
+				$iterator->next();
+		return false;
+	}
+
+	static public function some(array $arr,callable $filter):bool
+	{
+		return self::search($arr,$filter)!==false;
 	}
 }
