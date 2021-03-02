@@ -9,6 +9,11 @@ class StringTools
 		return implode("",$strings);
 	}
 
+	static public function endsWith(string $str,string $suffix)
+	{
+		return substr($str,-strlen($suffix))==$suffix;
+	}
+
 	static public function slugToCamelCase(string $str,bool $includingFirstWord=false)
 	{
 		$words			= explode("-",$str);
@@ -31,6 +36,11 @@ class StringTools
 			return $camel;
 		else
 			return $words[0].$camel;
+	}
+
+	static public function startsWith(string $str,string $prefix)
+	{
+		return substr($str,0,strlen($prefix))==$prefix;
 	}
 
 	static public function titleCase(string $str){ return ucfirst($str); }
