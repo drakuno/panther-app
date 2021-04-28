@@ -2,10 +2,30 @@
 
 namespace PantherApp;
 
-use \ArrayIterator;
+use ArrayAccess;
+use ArrayIterator;
+use TypeError;
 
 class ArrayTools
 {
+	static public function callableAsResultMap($argsprovider=null):callable
+	{
+		if (!empty($argsprovider)&&!is_array($argsprovider)&&!is_callable($argsprovider))
+			throw new TypeError("expected array or callable");
+
+		return function(callable $callable) use ($argsprovider)
+		{
+			if (is_array($argsprovider))
+				$args = $argsprovider;
+			else if (is_callable($argsprovider))
+				$args = $argsprovider($callable);
+			else
+				$args = array();
+
+			return call_user_func_array($callable,$args);
+		};
+	}
+
 	static public function every(array $arr,callable $filter):bool
 	{
 		$iterator	= new ArrayIterator($arr);
@@ -69,6 +89,14 @@ class ArrayTools
 		return self::fromArrayOfTuples($key_value_tuples);
 	}
 
+	static public function keyValueFilter($key,$value)
+	{
+		return function(ArrayAccess $arr) use ($key,$value)
+		{
+			return $arr[$key]==$value;
+		};
+	}
+
 	static public function keysMap(array $arr,callable $map):array
 	{
 		$keys	= array_keys($arr);
@@ -114,5 +142,19 @@ class ArrayTools
 	static public function some(array $arr,callable $filter):bool
 	{
 		return self::search($arr,$filter)!==false;
+	}
+
+	static public function valueAsAssocMap(array $mappings):callable
+	{
+		if (!static::every($mappings,"is_callable"))
+			throw new TypeError("expected array of callables");
+
+		return function($value) use ($mappings):array
+		{
+			return array_map(
+				static::callableAsResultMap([$value]),
+				$mappings
+			);
+		};
 	}
 }
