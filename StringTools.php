@@ -33,6 +33,11 @@ class StringTools
 			return $words[0].$camel;
 	}
 
+	static public function slugToPascalCase(string $str):string
+	{
+		return static::slugToCamelCase($str,true);
+	}
+
 	static public function snakeToCamelCase(string $str,bool $includingFirstWord=false)
 	{
 		$words			= explode("_",$str);
@@ -45,9 +50,14 @@ class StringTools
 			return $words[0].$camel;
 	}
 
+	static public function snakeToPascalCase(string $str):string
+	{
+		return static::snakeToCamelCase($str,true);
+	}
+
 	static public function startsWith(string $str,string $prefix)
 	{
-		return substr($str,0,strlen($prefix))==$prefix;
+		return strpos($str,$prefix)===0;
 	}
 
 	static public function suffix(string $str,string $suffix)
