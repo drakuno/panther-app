@@ -8,24 +8,6 @@ use TypeError;
 
 class ArrayTools
 {
-	static public function callableAsResultMap($argsprovider=null):callable
-	{
-		if (!empty($argsprovider)&&!is_array($argsprovider)&&!is_callable($argsprovider))
-			throw new TypeError("expected array or callable");
-
-		return function(callable $callable) use ($argsprovider)
-		{
-			if (is_array($argsprovider))
-				$args = $argsprovider;
-			else if (is_callable($argsprovider))
-				$args = $argsprovider($callable);
-			else
-				$args = array();
-
-			return call_user_func_array($callable,$args);
-		};
-	}
-
 	static public function every(array $arr,callable $filter):bool
 	{
 		$iterator	= new ArrayIterator($arr);
@@ -152,7 +134,7 @@ class ArrayTools
 		return function($value) use ($mappings):array
 		{
 			return array_map(
-				static::callableAsResultMap([$value]),
+				FunctionTools::asResultMap([$value]),
 				$mappings
 			);
 		};
