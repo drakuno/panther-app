@@ -59,9 +59,14 @@ class Request
 
 	public function query(){ return $this->query; }
 
-	public function remainder()
+	public function remainder():string
 	{
-		return implode("/",array_slice($this->query,$this->targetIndex));
+		return implode("/",$this->slice());
+	}
+
+	public function slice():array
+	{
+		return array_slice($this->query,$this->targetIndex);
 	}
 
 	public function vars(){ return $this->vars; }
