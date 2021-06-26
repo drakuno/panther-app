@@ -16,9 +16,27 @@ class StringTools
 		return substr($str,-strlen($suffix))==$suffix;
 	}
 
+	static public function longerThanFilterMake($target):callable
+	{
+		$length = is_string($target)?strlen($target):intval($target);
+		return function(string $str) use ($length)
+		{
+			return strlen($str)>$length;
+		};
+	}
+
 	static public function prefix(string $str,string $prefix)
 	{
 		return static::concat($prefix,$str);
+	}
+
+	static public function shorterThanFilterMake($target):callable
+	{
+		$length = is_string($target)?strlen($target):intval($target);
+		return function(string $str) use ($length)
+		{
+			return strlen($str)<$length;
+		};
 	}
 
 	static public function slugToCamelCase(string $str,bool $includingFirstWord=false)
@@ -55,6 +73,24 @@ class StringTools
 		return static::snakeToCamelCase($str,true);
 	}
 
+	static public function spacedToCamelCase(string $str,bool $includingFirstWord=false):string
+	{
+		return static::slugToCamelCase(
+			static::spacedToSlug($str),
+			$includingFirstWord
+		);
+	}
+
+	static public function spacedToPascalCase(string $str):string
+	{
+		return static::spacedToCamelCase($str,true);
+	}
+
+	static public function spacedToSlug(string $str):string
+	{
+		return preg_replace("/\s+/","-",$str);
+	}
+
 	static public function startsWith(string $str,string $prefix)
 	{
 		return strpos($str,$prefix)===0;
@@ -68,17 +104,22 @@ class StringTools
 	static public function templateRender(
 		string $template_filename,
 		array $vars=array(),
-		$context=null
+		$context=null,
+		&$template_return=null
 	)
 	{
 		if (!is_file($template_filename))
 			throw new AppException("template-not-found");
 
-		$contextualRender = function() use ($template_filename,$vars)
+		$contextualRender = function() use (
+			$template_filename,
+			$vars,
+			&$template_return
+		)
 		{
 			extract($vars,EXTR_SKIP);
 			ob_start();
-			require $template_filename;
+			$template_return = require $template_filename;
 			return ob_get_clean();
 		};
 
