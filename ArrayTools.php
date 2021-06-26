@@ -2,12 +2,23 @@
 
 namespace PantherApp;
 
-use ArrayAccess;
 use ArrayIterator;
 use TypeError;
 
 class ArrayTools
 {
+	static public function asMap(array $arr,$default=null):callable
+	{
+		return function($key) use ($arr,$default)
+		{
+			return array_key_exists($key,$arr)
+					 ?$arr[$key]
+					 :(is_callable($default)
+					 	?call_user_func($default,$key)
+					 	:$default);
+		};
+	}
+
 	static public function every(array $arr,callable $filter):bool
 	{
 		$iterator	= new ArrayIterator($arr);
@@ -20,29 +31,20 @@ class ArrayTools
 		return true;
 	}
 
+	/**
+	 * Deprecated: moved to FunctionTools::and()
+	 */
 	static public function filterAnd(callable ...$filters):callable
 	{
-		if (count($filters)==1)
-			return $filters[0];
-		else {
-			$leftside	= $filters[0];
-			if (count($filters)==2)
-				$rightside	= $filters[1];
-			else
-				$rightside	= self::filterAnd(array_slice($filters,1));
-			return function(...$args) use ($leftside,$rightside):bool
-			{
-				return call_user_func_array($leftside,$args)&&call_user_func_array($rightside,$args);
-			};
-		}
+		return FunctionTools::and(...$filters);
 	}
 
+	/**
+	 * Deprecated: moved to FunctionTools::not()
+	 */
 	static public function filterNot(callable $filter):callable
 	{
-		return function(...$args) use ($filter)
-		{
-			return !call_user_func_array($filter,$args);
-		};
+		return FunctionTools::not($filter);
 	}
 
 	static public function find(array $arr,callable $filter,$default=null)
@@ -73,10 +75,21 @@ class ArrayTools
 
 	static public function keyValueFilter($key,$value)
 	{
-		return function(ArrayAccess $arr) use ($key,$value)
+		return function($arr) use ($key,$value)
 		{
 			return $arr[$key]==$value;
 		};
+	}
+
+	static public function keysExist(array $arr,array $keys):bool
+	{
+		return static::every(
+			$keys,
+			FunctionTools::paramBindDecoration(
+				"array_key_exists",
+				[1=>$arr]
+			)
+		);
 	}
 
 	static public function keysMap(array $arr,callable $map):array
