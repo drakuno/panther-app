@@ -9,6 +9,14 @@ use PantherApp\Exception\AppException;
 
 abstract class MethodRoute extends Route
 {
+	public function handles(Request $request)
+	{
+		return method_exists(
+			get_called_class(),
+			static::targetAsMethodNameMap($request->target())
+		);
+	}
+
 	public function handle(Request $request)
 	{
 		$method_name = static::targetAsMethodNameMap($request->target());
