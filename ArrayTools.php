@@ -81,6 +81,11 @@ class ArrayTools
 		};
 	}
 
+	static public function keysExclude(array $arr,array $keys):array
+	{
+		return array_diff_key($arr,array_flip($keys));
+	}
+
 	static public function keysExist(array $arr,array $keys):bool
 	{
 		return static::every(
