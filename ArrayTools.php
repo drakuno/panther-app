@@ -61,6 +61,11 @@ class ArrayTools
 		);
 	}
 
+	static public function get(array $arr,$key,$default=null)
+	{
+		return array_key_exists($key,$arr)?$arr[$key]:$default;
+	}
+
 	static public function keyAccessCallable($key):callable
 	{
 		return function(array $arr) use ($key){ return $arr[$key]; };
