@@ -6,14 +6,54 @@ use PantherApp\Exception\AppException;
 
 class StringTools
 {
+	static public function camelAsDelimitedCaseMap(string $str,string $delimiter):string
+	{
+		return strtolower(implode($delimiter,static::caseExplode($str)));
+	}
+
+	static public function camelAsKebabCaseMap(string $str):string
+	{
+		return static::camelAsDelimitedCaseMap($str,"-");
+	}
+
+	static public function camelAsSnakeCaseMap(string $str):string
+	{
+		return static::camelAsDelimitedCaseMap($str,"-");
+	}
+
+	static public function caseExplode(string $str):array
+	{
+		return preg_split("/(?=[A-Z])/",$str);
+	}
+
 	static public function concat(string ...$strings)
 	{
 		return implode("",$strings);
 	}
 
+	static public function delimitedAsCamelCaseMap(string $str,string $delimiter):string
+	{
+		return lcfirst(static::delimitedAsPascalCaseMap($str,$delimiter));
+	}
+
+	static public function delimitedAsPascalCaseMap(string $str,string $delimiter):string
+	{
+		return implode("",array_map("ucfirst",explode($delimiter,$str)));
+	}
+
 	static public function endsWith(string $str,string $suffix)
 	{
 		return substr($str,-strlen($suffix))==$suffix;
+	}
+
+	static public function kebabAsCamelCaseMap(string $str):string
+	{
+		return static::delimitedAsCamelCaseMap($str,"-");
+	}
+
+	static public function kebabAsPascalCaseMap(string $str):string
+	{
+		return static::delimitedAsPascalCaseMap($str,"-");
 	}
 
 	static public function longerThanFilterMake($target):callable
@@ -23,6 +63,21 @@ class StringTools
 		{
 			return strlen($str)>$length;
 		};
+	}
+
+	static public function pascalAsDelimitedCaseMap(string $str,string $delimiter):string
+	{
+		return strtolower(implode($delimiter,array_filter(static::caseExplode($str))));
+	}
+
+	static public function pascalAsKebabCaseMap(string $str):string
+	{
+		return static::pascalAsDelimitedCaseMap($str,"-");
+	}
+
+	static public function pascalAsSnakeCaseMap(string $str):string
+	{
+		return static::pascalAsDelimitedCaseMap($str,"_");
 	}
 
 	static public function prefix(string $str,string $prefix)
@@ -39,56 +94,84 @@ class StringTools
 		};
 	}
 
+	/**
+	 * @deprecated - use kebabAsCamelCaseMap or kebabAsPascalCaseMap
+	 *		instead!
+	 */
 	static public function slugToCamelCase(string $str,bool $includingFirstWord=false)
 	{
-		$words			= explode("-",$str);
-		$wordsToCamel	= $includingFirstWord?$words:array_slice($words,1);
-		$camelWords		= array_map("ucfirst",$wordsToCamel);
-		$camel			= implode("",$camelWords);
 		if ($includingFirstWord)
-			return $camel;
+			return static::kebabAsPascalCaseMap($str);
 		else
-			return $words[0].$camel;
+			return static::kebabAsCamelCaseMap($str);
 	}
 
+	/**
+	 * @deprecated - use kebabAsPascalCaseMap instead!
+	 */
 	static public function slugToPascalCase(string $str):string
 	{
-		return static::slugToCamelCase($str,true);
+		return static::kebabAsPascalCaseMap($str);
 	}
 
+	static public function snakeAsCamelCaseMap(string $str):string
+	{
+		return static::delimitedAsCamelCaseMap($str,"_");
+	}
+
+	static public function snakeAsPascalCaseMap(string $str):string
+	{
+		return static::delimitedAsPascalCaseMap($str,"_");
+	}
+
+	/**
+	 * @deprecated - use snakeAsCamelCaseMap or snakeAsPascalCaseMap
+	 *		instead!
+	 */
 	static public function snakeToCamelCase(string $str,bool $includingFirstWord=false)
 	{
-		$words			= explode("_",$str);
-		$wordsToCamel	= $includingFirstWord?$words:array_slice($words,1);
-		$camelWords		= array_map("ucfirst",$wordsToCamel);
-		$camel			= implode("",$camelWords);
 		if ($includingFirstWord)
-			return $camel;
+			return static::snakeAsPascalCaseMap($str);
 		else
-			return $words[0].$camel;
+			return static::snakeAsCamelCaseMap($str);
 	}
 
+	/**
+	 * @deprecated - use snakeAsPascalCaseMap instead!
+	 */
 	static public function snakeToPascalCase(string $str):string
 	{
-		return static::snakeToCamelCase($str,true);
+		return static::snakeAsPascalCaseMap($str);
 	}
 
+	static public function spacedAsCamelCaseMap(string $str):string
+	{
+		return static::delimitedAsCamelCaseMap($str," ");
+	}
+
+	static public function spacedAsPascalCaseMap(string $str):string
+	{
+		return static::delimitedAsPascalCaseMap($str," ");
+	}
+
+	/**
+	 * @deprecated - use spacedAsCamelCaseMap or spacedAsPascalCaseMap
+	 *		instead!
+	 */
 	static public function spacedToCamelCase(string $str,bool $includingFirstWord=false):string
 	{
-		return static::slugToCamelCase(
-			static::spacedToSlug($str),
-			$includingFirstWord
-		);
+		if ($includingFirstWord)
+			return static::spacedAsPascalCaseMap($str);
+		else
+			return static::spacedAsCamelCaseMap($str);
 	}
 
+	/**
+	 * @deprecated - use spacedAsPascalCaseMap instead!
+	 */
 	static public function spacedToPascalCase(string $str):string
 	{
-		return static::spacedToCamelCase($str,true);
-	}
-
-	static public function spacedToSlug(string $str):string
-	{
-		return preg_replace("/\s+/","-",$str);
+		return static::spacedAsPascalCaseMap($str);
 	}
 
 	static public function startsWith(string $str,string $prefix)
