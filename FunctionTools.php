@@ -8,7 +8,39 @@ use ReflectionParameter;
 
 class FunctionTools
 {
+	static public function and(callable ...$filters):callable
+	{
+		if (count($filters)==1)
+			return $filters[0];
+		else {
+			$leftside	= $filters[0];
+			if (count($filters)==2)
+				$rightside	= $filters[1];
+			else
+				$rightside	= self::and(array_slice($filters,1));
+			return function(...$args) use ($leftside,$rightside):bool
+			{
+				return call_user_func_array($leftside,$args)&&call_user_func_array($rightside,$args);
+			};
+		}
+	}
+
+	static public function argsAsArrayMap():array{ return func_get_args(); }
+
+	static public function asMethodReturnMapMake(string $method):callable
+	{
+		return function($object) use ($method)
+		{
+			return $object->$method();
+		};
+	}
+
 	static public function asResultMap($argsprovider=null):callable
+	{
+		return self::asReturnMapMake($argsprovider);
+	}
+
+	static public function asReturnMapMake($argsprovider=null):callable
 	{
 		if (!empty($argsprovider)&&!is_array($argsprovider)&&!is_callable($argsprovider))
 			throw new TypeError("expected array or callable");
@@ -26,21 +58,9 @@ class FunctionTools
 		};
 	}
 
-	static public function and(callable ...$filters):callable
+	static public function classTestMake(string $class):callable
 	{
-		if (count($filters)==1)
-			return $filters[0];
-		else {
-			$leftside	= $filters[0];
-			if (count($filters)==2)
-				$rightside	= $filters[1];
-			else
-				$rightside	= self::and(array_slice($filters,1));
-			return function(...$args) use ($leftside,$rightside):bool
-			{
-				return call_user_func_array($leftside,$args)&&call_user_func_array($rightside,$args);
-			};
-		}
+		return self::paramBindDecoration("is_a",[1=>$class]);
 	}
 
 	static public function identity($value):callable
