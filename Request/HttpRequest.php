@@ -18,7 +18,7 @@ class HttpRequest extends Request
 	{
 		$query	= self::URIPathBaseTrim($uri,$base_path);
 
-		if ($uriquery_pos=strpos($query,"?"))
+		if (($uriquery_pos=strpos($query,"?"))!==false)
 			$query	= substr($query,0,$uriquery_pos);
 
 		return $query;
