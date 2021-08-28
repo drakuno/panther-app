@@ -5,6 +5,7 @@ namespace PantherApp;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionParameter;
+use TypeError;
 
 class FunctionTools
 {
