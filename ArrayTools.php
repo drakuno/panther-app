@@ -66,9 +66,12 @@ class ArrayTools
 		return array_key_exists($key,$arr)?$arr[$key]:$default;
 	}
 
-	static public function keyAccessCallable($key):callable
+	static public function keyAccessCallable($key,$default=null):callable
 	{
-		return function(array $arr) use ($key){ return $arr[$key]; };
+		return function(array $arr) use ($key,$default)
+		{
+			return self::get($arr,$key,$default);
+		};
 	}
 
 	static public function keyAndValueMap(array $arr,callable $map):array
