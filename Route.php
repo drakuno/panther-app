@@ -8,7 +8,7 @@ use PantherApp\Exception\AppException;
 
 abstract class Route
 {
-	static final private function handlesForString(string $target)
+	static private function handlesForString(string $target)
 	{
 		return function(Request $request) use ($target)
 		{
@@ -16,7 +16,7 @@ abstract class Route
 		};
 	}
 
-	static final private function handlesForStringArray(array $targets)
+	static private function handlesForStringArray(array $targets)
 	{
 		if (count(array_filter($targets,function($target){ return is_string($target); }))>0)
 			throw new AppException("wrong-type","All array elements must be of type <string>.");
@@ -27,7 +27,7 @@ abstract class Route
 		};
 	}
 
-	static final private function handlesFrom($mixed)
+	static private function handlesFrom($mixed)
 	{
 		if (is_callable($mixed))
 			return $mixed;
